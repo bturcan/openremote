@@ -8,22 +8,22 @@ export interface MapAssetTypesCardConfig {
     assets?: Asset[];
 }
 
-export class OrMapAssetTypesCardLoadAssetEvent extends CustomEvent<string> {
+export class OrMapAssetTypesChangedEvent extends CustomEvent<string[]> {
 
-    public static readonly NAME = "or-map-asset-card-load-asset";
+    public static readonly NAME = "or-map-asset-types-changed";
 
-    constructor(assetId: string) {
-        super(OrMapAssetTypesCardLoadAssetEvent.NAME, {
+    constructor(assetTypes: string[]) {
+        super(OrMapAssetTypesChangedEvent.NAME, {
             bubbles: true,
             composed: true,
-            detail: assetId
+            detail: assetTypes
         });
     }
 }
 
 declare global {
     export interface HTMLElementEventMap {
-        [OrMapAssetTypesCardLoadAssetEvent.NAME]: OrMapAssetTypesCardLoadAssetEvent;
+        [OrMapAssetTypesChangedEvent.NAME]: OrMapAssetTypesChangedEvent;
     }
 }
 
@@ -62,11 +62,19 @@ export class OrMapAssetTypesCard extends subscribe(manager)(LitElement) {
 
         const assetTypes = [... new Set(this.assets.map(e => e.type))];
 
-        return html`${assetTypes.map(e => Util.getAssetTypeLabel(e))}`;
+        // return html`<pre>${JSON.stringify(this.assets.map(e => e.type), null, 2)}</pre>`;
+        return html`<ul>
+            ${assetTypes.map((assetType) => {
+                return html`
+                    <li @click="${() => this.handleAssetTypeClick(assetType!)}">${Util.getAssetTypeLabel(assetType)}</li>
+                `;
+            })}
+        </ul>`;
+        // return html`${assetTypes.map(e => Util.getAssetTypeLabel(e))}`;
     }
 
-    protected _loadAsset(assetId: string) {
-        this.dispatchEvent(new OrMapAssetTypesCardLoadAssetEvent(assetId));
+    protected handleAssetTypeClick(assetType: string) {
+        this.dispatchEvent(new OrMapAssetTypesChangedEvent([assetType]));
     }
 
 }

@@ -6,6 +6,7 @@ import {
     MapAssetCardConfig, MapAssetTypesCardConfig,
     OrMap,
     OrMapAssetCardLoadAssetEvent,
+    OrMapAssetTypesChangedEvent,
     OrMapClickedEvent,
     OrMapMarkerAsset,
     OrMapMarkerClickedEvent
@@ -335,7 +336,7 @@ export class PageMap<S extends MapStateKeyed> extends Page<S> {
     protected render() {
 
         return html`
-            <or-map-asset-types-card .config="${this.assetTypesCardConfig}"></or-map-asset-types-card>
+            <or-map-asset-types-card .config="${this.assetTypesCardConfig}" @or-map-asset-types-changed="${ev => this.changeSelectedAssetTypes(ev)}"></or-map-asset-types-card>
             
             ${this._currentAsset ? html `<or-map-asset-card .config="${this.config?.card}" .assetId="${this._currentAsset.id}"></or-map-asset-card>` : ``}
             
@@ -393,6 +394,10 @@ export class PageMap<S extends MapStateKeyed> extends Page<S> {
 
     protected onLoadAssetEvent(loadAssetEvent: OrMapAssetCardLoadAssetEvent) {
         router.navigate(getAssetsRoute(false, loadAssetEvent.detail));
+    }
+
+    protected changeSelectedAssetTypes(assetTypes: OrMapAssetTypesChangedEvent) {
+        console.log(assetTypes);
     }
 
     protected getAssetTypesCardConfig(assets: Asset[]) {

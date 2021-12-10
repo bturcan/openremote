@@ -23,6 +23,7 @@ export * from "./markers/or-map-marker";
 export * from "./markers/or-map-marker-asset";
 export {Control, IControl} from "mapbox-gl";
 export * from "./or-map-asset-card";
+export * from "./or-map-asset-types-card";
 
 export interface ViewSettings {
     "center": LngLatLike;

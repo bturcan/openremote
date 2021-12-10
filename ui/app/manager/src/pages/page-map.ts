@@ -3,7 +3,7 @@ import {customElement, property, query} from "lit/decorators.js";
 import {createSlice, EnhancedStore, PayloadAction} from "@reduxjs/toolkit";
 import "@openremote/or-map";
 import {
-    MapAssetCardConfig,
+    MapAssetCardConfig, MapAssetTypesCardConfig,
     OrMap,
     OrMapAssetCardLoadAssetEvent,
     OrMapClickedEvent,
@@ -120,7 +120,17 @@ export class PageMap<S extends MapStateKeyed> extends Page<S> {
     static get styles() {
         // language=CSS
         return css`
-           or-map-asset-card {
+            or-map-asset-types-card {
+                height: 166px;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: calc(100vw - 10px);
+                margin: 5px;
+                z-index: 99;
+            }
+            
+            or-map-asset-card {
                 height: 166px;
                 position: absolute;
                 bottom: 0;
@@ -137,6 +147,19 @@ export class PageMap<S extends MapStateKeyed> extends Page<S> {
             }
         
             @media only screen and (min-width: 415px){
+                or-map-asset-types-card {
+                    position: absolute;
+                    top: 20px;
+                    left: 50px;
+                    width: 320px;
+                    margin: 0;
+                    height: 400px; /* fallback for IE */
+                    height: max-content;
+                    min-height: 100px;
+                    background-color: white;
+                    max-height: calc(100vh - 150px);
+                }
+                
                 or-map-asset-card {
                     position: absolute;
                     top: 20px;
@@ -153,6 +176,9 @@ export class PageMap<S extends MapStateKeyed> extends Page<S> {
 
     @property()
     public config?: PageMapConfig;
+
+    @property()
+    protected assetTypesCardConfig: MapAssetTypesCardConfig = {};
 
     @query("#map")
     protected _map?: OrMap;
@@ -309,6 +335,7 @@ export class PageMap<S extends MapStateKeyed> extends Page<S> {
     protected render() {
 
         return html`
+            <or-map-asset-types-card .config="${this.assetTypesCardConfig}"></or-map-asset-types-card>
             
             ${this._currentAsset ? html `<or-map-asset-card .config="${this.config?.card}" .assetId="${this._currentAsset.id}"></or-map-asset-card>` : ``}
             
@@ -346,6 +373,7 @@ export class PageMap<S extends MapStateKeyed> extends Page<S> {
 
     stateChanged(state: S) {
         this._assets = this._getMapAssets(state);
+        this.assetTypesCardConfig = this.getAssetTypesCardConfig(this._assets);
         this._currentAsset = this._getCurrentAsset(state);
         this.getRealmState(state);
     }
@@ -366,4 +394,20 @@ export class PageMap<S extends MapStateKeyed> extends Page<S> {
     protected onLoadAssetEvent(loadAssetEvent: OrMapAssetCardLoadAssetEvent) {
         router.navigate(getAssetsRoute(false, loadAssetEvent.detail));
     }
+
+    protected getAssetTypesCardConfig(assets: Asset[]) {
+        return {
+            assets: this.getAssetsWithLocation(assets)
+        };
+    }
+
+    protected getAssetsWithLocation(assets: Asset[]) {
+        return assets.filter((asset: Asset) => {
+            if (!asset.attributes!.location!.value) {
+                return false;
+            }
+            return asset;
+        });
+    }
+
 }
